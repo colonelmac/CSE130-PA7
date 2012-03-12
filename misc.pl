@@ -101,10 +101,10 @@ ai([], I) :- true.
 ai([H|T], I) :- not(isin(H, I)), ai(T, I).
 avoids_ingredients(X,L) :- ingredients(X, I), ai(L, I).
 
-p1(L,X) :- throw(to_be_done). 
+p1(L,X) :- findall(A, (has_ingredients(A, X)), L).
 
-p2(L,Y) :- throw(to_be_done). 
+p2(L,Y) :- findall(B, (avoids_ingredients(B, Y)), L).
 
-find_items(L,X,Y) :- p1(L1,X),p2(L2,Y),intersection(L1,L2,L).  
+find_items(L,X,Y) :- p1(L1,X), p2(L2,Y),intersection(L1,L2,L).  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
