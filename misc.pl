@@ -85,15 +85,21 @@ taqueria(la_milpas_quatros, [jiminez, martin, antonio, miguel],
 % is X menu item available at Y tacqueria? 
 available_at(X,Y) :- taqueria(Y, _, Z), isin(X, Z). 
 
-multi_available(X) :- throw(to_be_done). 
+multi_available(X) :- taqueria(Y, _, A), taqueria(Z, _, B), isin(X, A), isin(X, B), not(Y=Z). 
 
-overworked(X) :- throw(to_be_done). 
+overworked(X) :- taqueria(Y, A, _), taqueria(Z, B, _), isin(X, A), isin(X, B), not(Y=Z).
 
-total_cost(X,K) :- throw(to_be_done). 
+t_cost([], K) :- K = 0.
+t_cost([H|T], K) :- t_cost(T, Ka), cost(H, Kb), K is Ka + Kb.
+total_cost(X, K) :- ingredients(X, I), I = [H|T], t_cost(I, K).
 
-has_ingredients(X,L) :- throw(to_be_done).
+hi([], I) :- true.
+hi([H|T], I) :- isin(H, I), hi(T, I).
+has_ingredients(X,L) :- ingredients(X, I), hi(L, I).
 
-avoids_ingredients(X,L) :- throw(to_be_done). 
+ai([], I) :- true.
+ai([H|T], I) :- not(isin(H, I)), ai(T, I).
+avoids_ingredients(X,L) :- ingredients(X, I), ai(L, I).
 
 p1(L,X) :- throw(to_be_done). 
 
