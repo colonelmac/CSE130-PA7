@@ -1,3 +1,7 @@
+% Programming Assignment 7
+% Derrick McMillen
+% A09135854
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Helpers
 
@@ -82,27 +86,45 @@ taqueria(la_milpas_quatros, [jiminez, martin, antonio, miguel],
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Problem 1: Rules
 
-% is X menu item available at Y tacqueria? 
+% Given X (food) and Y (taqueria) - find the matching taqueria using isin
 available_at(X,Y) :- taqueria(Y, _, Z), isin(X, Z). 
 
-multi_available(X) :- taqueria(Y, _, A), taqueria(Z, _, B), isin(X, A), isin(X, B), not(Y=Z). 
+% Given X (food) - return true two taquerias have the same item, 
+% but not the same name.
+multi_available(X) :- bagof(Y, available_at(X, Y), L), length(L, Len), Len > 1.
 
-overworked(X) :- taqueria(Y, A, _), taqueria(Z, B, _), isin(X, A), isin(X, B), not(Y=Z).
+% Given X (worker) - return true if that worker works at two distinct taquerias.
+ow(X, Y) :- taqueria(Y, W, _), isin(X, W).
+overworked(X) :- bagof(Y, ow(X, Y), L), length(L, Len), Len > 1.
 
+% recursive helper for total_cost
 t_cost([], K) :- K = 0.
 t_cost([H|T], K) :- t_cost(T, Ka), cost(H, Kb), K is Ka + Kb.
-total_cost(X, K) :- ingredients(X, I), I = [H|T], t_cost(I, K).
 
+% Given X (food) and K (monies) - return the cost of the meal 
+% by suming ingredients.
+total_cost(X, K) :- ingredients(X, I), t_cost(I, K).
+
+% recursive helper for has_ingredients 
 hi([], I) :- true.
 hi([H|T], I) :- isin(H, I), hi(T, I).
+
+% Given X (food) and L (list of noms) - return true if the item has 
+% all of those ingredients.
 has_ingredients(X,L) :- ingredients(X, I), hi(L, I).
 
+% recrusive helper for avoid_ingredients
 ai([], I) :- true.
 ai([H|T], I) :- not(isin(H, I)), ai(T, I).
+
+% Given X (food) and L (list of noms) - returns true if the item has 
+% none of those ingredients.
 avoids_ingredients(X,L) :- ingredients(X, I), ai(L, I).
 
+% helper for find_items
 p1(L,X) :- findall(A, (has_ingredients(A, X)), L).
 
+% helper for find_items
 p2(L,Y) :- findall(B, (avoids_ingredients(B, Y)), L).
 
 find_items(L,X,Y) :- p1(L1,X), p2(L2,Y),intersection(L1,L2,L).  
